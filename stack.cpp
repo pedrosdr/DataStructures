@@ -62,13 +62,12 @@ class Stack {
 
         bool isEmpty()
         {
-            if(top == -1)
-                return true;
-            return false;
+            return top == -1;
         }
 
         bool isFull()
         {
+            return top == arrSize - 1;
             if(top == arrSize - 1)
                 return true;
             return false;
