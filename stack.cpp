@@ -68,9 +68,6 @@ class Stack {
         bool isFull()
         {
             return top == arrSize - 1;
-            if(top == arrSize - 1)
-                return true;
-            return false;
         }
 
         void push(int val)
