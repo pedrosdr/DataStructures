@@ -43,7 +43,7 @@ class Node
         // Methods
         std::string toString()
         {
-            return "<key: " + std::to_string(key) + ">";
+            return "(key: " + std::to_string(key) + ", val: " + std::to_string(data) + ")";
         }
 };
 
@@ -91,21 +91,86 @@ class SiglyLinkedList
             return false;
         }
 
-        void append(Node<T>* node)
+        void insert(Node<T>* node, int pos)
         {
+            if(pos < 0 || pos > size)
+            {
+                print("Could not insert node: index is out of the list");
+                return;
+            }
+
             if(nodeExists(node->Key()))
             {
-                print("The node " + node->toString() + " was not appended because it already exists.");
+                print("The node " + node->toString() + " was not inserted because it already exists.");
+                return;
+            }
+
+            Node<T>* node1 = head;
+            for(int i = 0; i < pos; i++)
+                node1 = node1->Next();
+
+            Node<T>* node2 = node1->Next();
+            node1->Next(node);
+            node->Next(node2);
+
+            size++;
+        }
+
+        void append(Node<T>* node)
+        {
+            insert(node, size);
+        }
+
+        void prepend(Node<T>* node)
+        {
+            insert(node, 0);
+        }
+
+        Node<T>* remove(int pos)
+        {
+            if(pos < 0 || pos >= size)
+            {
+                print("Could not remove node: index is out of the list");
+                return nullptr;
+            }
+
+            Node<T>* node1 = head;
+            for(int i = 0; i < pos; i++)
+                node1 = node1->Next();
+
+            Node<T>* node2 = node1->Next();
+            Node<T>* node3 = node2->Next();
+            
+            if(node3 != nullptr)
+                node1->Next(node3);
+            
+            size--;
+            return node2;
+        }
+
+        Node<T>* pop()
+        {
+            remove(size-1);
+        }
+
+        Node<T>* shift()
+        {
+            remove(0);
+        }
+
+        void update(int pos, T val)
+        {
+            if(pos < 0 || pos >= size)
+            {
+                print("Could not update node: index is out of the list");
                 return;
             }
 
             Node<T>* node_i = head;
-            for(int i = 0; i < size; i++)
-            {
+            for(int i = 0; i <= pos; i++)
                 node_i = node_i->Next();
-            }
-            node_i->Next(node);
-            size++;
+            
+            node_i->Data(val);
         }
 
         void display()
@@ -119,7 +184,7 @@ class SiglyLinkedList
                 if(i != size - 1)
                     std::cout << ", ";
             }
-            std::cout << "] size: " << size;
+            std::cout << "] size: " << size << "\n";
         }
 };
 
@@ -129,12 +194,25 @@ int main(int argc, char* argv[])
     SiglyLinkedList<int> list = SiglyLinkedList<int>();
     Node<int>* first = new Node<int>(0,0);
 
-    list.append(first);
+    list.prepend(first);
     list.append(new Node<int>(1,1));
-    list.append(new Node<int>(2,2));
-    list.append(new Node<int>(3,3));
-    list.append(new Node<int>(1,4));
+    // list.append(new Node<int>(2,2));
+    // list.append(new Node<int>(3,3));
+    // list.append(new Node<int>(1,4));
+
+    list.insert(new Node<int>(9, 3), 1);
+    list.prepend(new Node<int>(4, 3));
+    list.insert(new Node<int>(5, 3), 1);
     list.display();
 
+    // Node<int>* removed = list.remove(0);
+    Node<int>* removed = list.shift();
+    list.display();
+    print(removed->toString());
+
+    list.update(1, 20);
+    list.display();
+
+    delete removed;
     return 0;
 }
