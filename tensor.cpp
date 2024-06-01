@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <math.h>
+#include <stdexcept>
 #include "headers/print.h"
 
 using std::vector;
@@ -21,6 +22,7 @@ class Tensor
             nrow = arr->size();
             ncol = arr->at(0)->size();
         }
+        
     public:
         // Constructors / Destructors
         ~Tensor()
@@ -96,18 +98,57 @@ class Tensor
         {
             return apply(std::pow, num);
         }
+
+        Tensor* transpose()
+        {
+            vector<vector<float>*>* newArr = new vector<vector<float>*>();
+            for(int j = 0; j < ncol; j++)
+            {
+                newArr->push_back(new vector<float>());
+                for(int i = 0; i < nrow; i++)
+                    newArr->at(j)->push_back(arr->at(i)->at(j));
+            }
+            return Tensor::fromVector(newArr);
+        }
+
+        Tensor* matmul(Tensor* other)
+        {
+            if(ncol != other->nrow)
+                throw std::invalid_argument("matmul: number of rows and columns does not match");
+
+            vector<vector<float>*>* newArr = new vector<vector<float>*>();
+            for(int i = 0; i < nrow; i++)
+            {
+                newArr->push_back(new vector<float>());
+                for(int j = 0; j < other->ncol; j++)
+                {
+                    float sum = 0.0f;
+                    for(int k = 0; k < ncol; k++)
+                    {
+                        sum += arr->at(i)->at(k) * other->arr->at(k)->at(j);
+                    }
+                    newArr->at(i)->push_back(sum);
+                }
+            }
+            return Tensor::fromVector(newArr);
+        }
 };
 
 int main(int argc, char* argv[])
 {
     vector<vector<float>*>* vect = new vector<vector<float>*>();
-    vect->push_back(new vector<float>{2.33485, 4.5, 3.3});
+    vect->push_back(new vector<float>{2.3, 4.5, 3.3});
     vect->push_back(new vector<float>{1.1, 2.2, 7.6});
     vect->push_back(new vector<float>{4.5, 2.3, 1.7});
     vect->push_back(new vector<float>{1.1, 2.1, 5.7});
     Tensor* t = Tensor::fromVector(vect);
-    Tensor* t2 = t->pow(3);
-    t->display();
-    t2->display();
+
+    vect = new vector<vector<float>*>();
+    vect->push_back(new vector<float>{2.3, 4.5});
+    vect->push_back(new vector<float>{1.1, 2.2});
+    vect->push_back(new vector<float>{4.5, 2.3});
+    Tensor* t2 = Tensor::fromVector(vect);
+
+    t->matmul(t2)->display();
     return 0;
 }
