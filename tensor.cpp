@@ -114,7 +114,7 @@ class Tensor
         Tensor* matmul(Tensor* other)
         {
             if(ncol != other->nrow)
-                throw std::invalid_argument("matmul: number of rows and columns does not match");
+                throw std::invalid_argument("matmul: number of rows and columns do not match");
 
             vector<vector<float>*>* newArr = new vector<vector<float>*>();
             for(int i = 0; i < nrow; i++)
