@@ -41,6 +41,34 @@ class Tensor
             return new Tensor(arr);
         }
 
+        Tensor* copy()
+        {
+            vector<vector<float>*>* arr = new vector<vector<float>*>();
+            for(int i = 0; i < size(0); i++)
+            {
+                arr->push_back(new vector<float>());
+                for(int j = 0; j < size(1); j++)
+                    arr->at(i)->push_back(at(i, j));
+            }
+
+            return Tensor::fromVector(arr);
+        }
+
+        float at(int i, int j)
+        {
+            return arr->at(i)->at(j);
+        }
+
+        int size(int index)
+        {
+            if(index == 0)
+                return arr->size();
+            if(index == 1) {
+                return arr->at(0)->size();
+            }
+            throw std::invalid_argument("size: index out of bounds");
+        }
+
         void display()
         {
             cout << "[";
@@ -62,26 +90,22 @@ class Tensor
 
         Tensor* apply(float (*func)(float))
         {
-            vector<vector<float>*>* newArr = new vector<vector<float>*>();
             for(int i = 0; i < nrow; i++)
             {
-                newArr->push_back(new vector<float>());
                 for(int j = 0; j < ncol; j++)
-                    newArr->at(i)->push_back(func((arr->at(i)->at(j))));
+                    arr->at(i)->at(j) = func((arr->at(i)->at(j)));
             }
-            return new Tensor(newArr);
+            return this;
         }
 
         Tensor* apply(float (*func)(float, float), float num)
         {
-            vector<vector<float>*>* newArr = new vector<vector<float>*>();
             for(int i = 0; i < nrow; i++)
             {
-                newArr->push_back(new vector<float>());
                 for(int j = 0; j < ncol; j++)
-                    newArr->at(i)->push_back(func((arr->at(i)->at(j)), num));
+                    arr->at(i)->at(j) = func((arr->at(i)->at(j)), num);
             }
-            return new Tensor(newArr);
+            return this;
         }
 
         Tensor* sqrt()
@@ -108,7 +132,10 @@ class Tensor
                 for(int i = 0; i < nrow; i++)
                     newArr->at(j)->push_back(arr->at(i)->at(j));
             }
-            return Tensor::fromVector(newArr);
+            delete arr;
+            arr = newArr;
+            std::swap(nrow, ncol);
+            return this;
         }
 
         Tensor* matmul(Tensor* other)
@@ -130,7 +157,10 @@ class Tensor
                     newArr->at(i)->push_back(sum);
                 }
             }
-            return Tensor::fromVector(newArr);
+            delete arr;
+            arr = newArr;
+            ncol = other->ncol;
+            return this;
         }
 };
 
@@ -149,6 +179,7 @@ int main(int argc, char* argv[])
     vect->push_back(new vector<float>{4.5, 2.3});
     Tensor* t2 = Tensor::fromVector(vect);
 
-    t->matmul(t2)->display();
+    t->copy()->sqrt()->pow(3)->matmul(t2)->display();
+    
     return 0;
 }
