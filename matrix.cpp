@@ -7,7 +7,7 @@
 using std::vector;
 using std::cout;
 
-class Tensor
+class Matrix
 {
     private:
         // Fields
@@ -16,7 +16,7 @@ class Tensor
         int ncol;
 
         // Constructors
-        Tensor(vector<vector<float>*>* arr)
+        Matrix(vector<vector<float>*>* arr)
         {
             this->arr = arr;
             nrow = arr->size();
@@ -25,7 +25,7 @@ class Tensor
         
     public:
         // Constructors / Destructors
-        ~Tensor()
+        ~Matrix()
         {
             if(arr != nullptr)
             {
@@ -36,12 +36,12 @@ class Tensor
         }
 
         // Methods
-        static Tensor* fromVector(vector<vector<float>*>* arr)
+        static Matrix* fromVector(vector<vector<float>*>* arr)
         {
-            return new Tensor(arr);
+            return new Matrix(arr);
         }
 
-        Tensor* copy()
+        Matrix* copy()
         {
             vector<vector<float>*>* arr = new vector<vector<float>*>();
             for(int i = 0; i < size(0); i++)
@@ -51,7 +51,7 @@ class Tensor
                     arr->at(i)->push_back(at(i, j));
             }
 
-            return Tensor::fromVector(arr);
+            return Matrix::fromVector(arr);
         }
 
         float at(int i, int j)
@@ -88,7 +88,7 @@ class Tensor
             cout << "]" << std::endl;
         }
 
-        Tensor* apply(float (*func)(float))
+        Matrix* apply(float (*func)(float))
         {
             for(int i = 0; i < nrow; i++)
             {
@@ -98,7 +98,7 @@ class Tensor
             return this;
         }
 
-        Tensor* apply(float (*func)(float, float), float num)
+        Matrix* apply(float (*func)(float, float), float num)
         {
             for(int i = 0; i < nrow; i++)
             {
@@ -108,22 +108,22 @@ class Tensor
             return this;
         }
 
-        Tensor* sqrt()
+        Matrix* sqrt()
         {
             return apply(std::sqrt);
         }
 
-        Tensor* exp()
+        Matrix* exp()
         {
             return apply(std::exp);
         }
 
-        Tensor* pow(float num)
+        Matrix* pow(float num)
         {
             return apply(std::pow, num);
         }
 
-        Tensor* transpose()
+        Matrix* transpose()
         {
             vector<vector<float>*>* newArr = new vector<vector<float>*>();
             for(int j = 0; j < ncol; j++)
@@ -138,7 +138,7 @@ class Tensor
             return this;
         }
 
-        Tensor* matmul(Tensor* other)
+        Matrix* matmul(Matrix* other)
         {
             if(ncol != other->nrow)
                 throw std::invalid_argument("matmul: number of rows and columns do not match");
@@ -171,15 +171,15 @@ int main(int argc, char* argv[])
     vect->push_back(new vector<float>{1.1, 2.2, 7.6});
     vect->push_back(new vector<float>{4.5, 2.3, 1.7});
     vect->push_back(new vector<float>{1.1, 2.1, 5.7});
-    Tensor* t = Tensor::fromVector(vect);
+    Matrix* t = Matrix::fromVector(vect);
 
     vect = new vector<vector<float>*>();
     vect->push_back(new vector<float>{2.3, 4.5});
     vect->push_back(new vector<float>{1.1, 2.2});
     vect->push_back(new vector<float>{4.5, 2.3});
-    Tensor* t2 = Tensor::fromVector(vect);
+    Matrix* t2 = Matrix::fromVector(vect);
 
-    t->copy()->sqrt()->pow(3)->matmul(t2)->display();
+    t->copy()->sqrt()->pow(3)->matmul(t2)->transpose()->display();
     
     return 0;
 }
