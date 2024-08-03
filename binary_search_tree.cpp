@@ -110,6 +110,31 @@ class BinarySearchTree
             printReverseOrder(node->Left());
         }
 
+        TreeNode<T>* seek(TreeNode<T>* node, int value)
+        {
+            if(node == nullptr || node->Value() == value)
+                return node;
+            
+            if(value < node->Value())
+                return seek(node->Left(), value);
+
+            return seek(node->Right(), value);
+        }
+
+        int height(TreeNode<T>* node) 
+        {
+            if(node == nullptr)
+                return -1;
+            
+            int left_height = height(node->Left());
+            int right_height = height(node->Right());
+
+            if(left_height > right_height)
+                return left_height + 1;
+            
+            return right_height + 1;
+        }
+
     public:
         // Constructors / Destructor
         BinarySearchTree()
@@ -276,15 +301,9 @@ class BinarySearchTree
             return seek(root, value);
         }
 
-        TreeNode<T>* seek(TreeNode<T>* node, int value)
+        int height()
         {
-            if(node == nullptr || node->Value() == value)
-                return node;
-            
-            if(value < node->Value())
-                return seek(node->Left(), value);
-
-            return seek(node->Right(), value);
+            return height(root);
         }
 
         void print()
@@ -317,6 +336,12 @@ int main(int argc, char* argv[])
     tree.printReverseOrder();
     cout << tree.lookup(25)->Value() << "\n";
     cout << tree.seek(10)->Value() << "\n";
+
+    vect = {30, 18, 45, 10, 25};
+    tree = BinarySearchTree<int>();
+    tree.insert(vect);
+    tree.print();
+    cout << tree.height() << "\n";
 
     return 0;
 }
