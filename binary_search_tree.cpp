@@ -75,7 +75,40 @@ class BinarySearchTree
 {
     private:
         // Fields
-         TreeNode<T>* root;
+        TreeNode<T>* root;
+
+        // methods
+        void printPreOrder(TreeNode<T>* node)
+        {
+            if(node == nullptr) return;
+            cout << node->Value() << " ";
+            printPreOrder(node->Left());
+            printPreOrder(node->Right());
+        }
+
+        void printInOrder(TreeNode<T>* node)
+        {
+            if(node == nullptr) return;
+            printInOrder(node->Left());
+            cout << node->Value() << " ";
+            printInOrder(node->Right());
+        }
+
+        void printPostOrder(TreeNode<T>* node)
+        {
+            if(node == nullptr) return;
+            printPostOrder(node->Left());
+            printPostOrder(node->Right());
+            cout << node->Value() << " ";
+        }
+
+        void printReverseOrder(TreeNode<T>* node)
+        {
+            if(node == nullptr) return;
+            printReverseOrder(node->Right());
+            cout << node->Value() << " ";
+            printReverseOrder(node->Left());
+        }
 
     public:
         // Constructors / Destructor
@@ -184,6 +217,76 @@ class BinarySearchTree
             }
         }
 
+        void printPreOrder()
+        {
+            cout << "Pre:     ";
+            printPreOrder(root);
+            cout << "\n";
+        }
+
+        void printInOrder()
+        {
+            cout << "In:      ";
+            printInOrder(root);
+            cout << "\n";
+        }
+
+        void printPostOrder()
+        {
+            cout << "Post:    ";
+            printPostOrder(root);
+            cout << "\n";
+        }
+
+        void printReverseOrder()
+        {
+            cout << "Reverse: ";
+            printReverseOrder(root);
+            cout << "\n";
+        }
+
+        TreeNode<T>* lookup(T value)
+        {
+            if(isEmpty()) return nullptr;
+
+            TreeNode<T>* temp = root;
+            TreeNode<T>* node = nullptr;
+            while(temp != nullptr)
+            {
+                if(value == temp->Value())
+                {
+                    node = temp;
+                    break;
+                }
+                
+                if(value < temp->Value())
+                {
+                    temp = temp->Left();
+                    continue;
+                }
+
+                temp = temp->Right();
+            }
+
+            return node;
+        }
+
+        TreeNode<T>* seek(T value)
+        {
+            return seek(root, value);
+        }
+
+        TreeNode<T>* seek(TreeNode<T>* node, int value)
+        {
+            if(node == nullptr || node->Value() == value)
+                return node;
+            
+            if(value < node->Value())
+                return seek(node->Left(), value);
+
+            return seek(node->Right(), value);
+        }
+
         void print()
         {
             cout << "----------------------------------------\n";
@@ -203,11 +306,17 @@ class BinarySearchTree
 
 int main(int argc, char* argv[])
 {
-    vector<int> vect = {22, 4, 6, 34, 54, 12, 15, 77, 65, 67, 9, 9, 1, 3, 3, 23, 45, 66};
+    vector<int> vect = {30, 18, 45, 10, 25, 65};
     BinarySearchTree<int> tree = BinarySearchTree<int>();
     tree.insert(vect);
     tree.print();
-    cout << tree.contains(new TreeNode<int>(71));
+    // cout << tree.contains(new TreeNode<int>(71));
+    tree.printPreOrder();
+    tree.printInOrder();
+    tree.printPostOrder();
+    tree.printReverseOrder();
+    cout << tree.lookup(25)->Value() << "\n";
+    cout << tree.seek(10)->Value() << "\n";
 
     return 0;
 }
