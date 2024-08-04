@@ -1,7 +1,8 @@
 #include <iostream>
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <stdexcept>
+#include <functional>
 #include "headers/print.h"
 
 using std::vector;
@@ -88,7 +89,7 @@ class Matrix
             cout << "]" << std::endl;
         }
 
-        Matrix* apply(float (*func)(float))
+        Matrix* apply(std::function<float(float)> func)
         {
             for(int i = 0; i < nrow; i++)
             {
@@ -98,7 +99,7 @@ class Matrix
             return this;
         }
 
-        Matrix* apply(float (*func)(float, float), float num)
+        Matrix* apply(std::function<float(float, float)> func, float num)
         {
             for(int i = 0; i < nrow; i++)
             {
@@ -110,17 +111,17 @@ class Matrix
 
         Matrix* sqrt()
         {
-            return apply(std::sqrt);
+            return apply([](float f) {return std::sqrt(f);});
         }
 
         Matrix* exp()
         {
-            return apply(std::exp);
+            return apply([](float f) {return std::exp(f);});
         }
 
         Matrix* pow(float num)
         {
-            return apply(std::pow, num);
+            return apply([](float f1, float f2) {return std::pow(f1, f2);}, num);
         }
 
         Matrix* transpose()
@@ -180,6 +181,9 @@ int main(int argc, char* argv[])
     Matrix* t2 = Matrix::fromVector(vect);
 
     t->copy()->sqrt()->pow(3)->matmul(t2)->transpose()->display();
+
+    t->display();
+    t->sqrt()->display();
     
     return 0;
 }
