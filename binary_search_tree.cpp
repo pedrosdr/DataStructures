@@ -135,6 +135,26 @@ class BinarySearchTree
             return right_height + 1;
         }
 
+        void printLevelOrderBFS(TreeNode<T>* node)
+        {
+            int h = height(node);
+            for(int i = 0; i <= h; i++)
+                printGivenLevel(node, i);
+        }
+
+        void printGivenLevel(TreeNode<T>* node, int level)
+        {
+            if(node == nullptr) return;
+
+            if(level == 0)
+                std::cout << node->Value() << " ";
+            else {
+                printGivenLevel(node->Left(), level - 1);
+                printGivenLevel(node->Right(), level - 1);
+            }
+            
+        }
+
     public:
         // Constructors / Destructor
         BinarySearchTree()
@@ -306,6 +326,11 @@ class BinarySearchTree
             return height(root);
         }
 
+        void printLevelOrderBFS()
+        {
+            printLevelOrderBFS(root);
+        }
+
         void print()
         {
             cout << "----------------------------------------\n";
@@ -340,8 +365,8 @@ int main(int argc, char* argv[])
     vect = {30, 18, 45, 10, 25};
     tree = BinarySearchTree<int>();
     tree.insert(vect);
-    tree.print();
+    tree.print(); 
     cout << tree.height() << "\n";
-
+    tree.printLevelOrderBFS();
     return 0;
 }
