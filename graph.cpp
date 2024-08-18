@@ -1,7 +1,29 @@
 #include <iostream>
+#include <algorithm>
 #include <vector>
 #include <list>
 #include "headers/print.h"
+
+template <typename T>
+bool contains(std::vector<T>& v, T x)
+{
+    bool res = false;
+    if(std::find(v.begin(), v.end(), x) != v.end()) {
+        res = true;
+    }
+    return res;
+}
+
+float min(std::vector<float>& v)
+{
+    float minimum = v.at(0);
+    for(int i = 1; i < v.size(); i++)
+    {
+        if(v.at(i) < minimum)
+            minimum = v.at(i);
+    }
+    return minimum;
+}
 
 class Edge
 {
@@ -28,7 +50,7 @@ class Edge
         // methods
         void display()
         {
-            std::cout << "<- " << weight << " -> " << "(" << destinationId << ")";
+            std::cout << "(" << destinationId << ", " << weight << ")";
         }
 };
 
@@ -43,7 +65,8 @@ class Vertex
     public:
         // constructors
         Vertex() : id(-1), name(""), edges(new std::list<Edge*>()) {}
-        Vertex(int id, std::string name) : id(id), name(name), edges(new std::list<Edge*>()) {};
+        Vertex(int id, std::string name) : id(id), name(name), edges(new std::list<Edge*>()) {}
+        Vertex(int id, std::string name, std::list<Edge*>* edges) : id(id), name(name), edges(edges) {}
 
         // destructors
         ~Vertex() {}
@@ -61,12 +84,15 @@ class Vertex
         // methods
         void display()
         {
-            std::cout << "(" << id << ": " << name << ") ";
+            std::cout << "(" << id << ": " << name << ") <= [";
 
             for(Edge* edge : *edges)
             {
                 edge->display();
+                std::cout << ", ";
             }
+
+            std::cout << "]";
         }
 
 };
@@ -76,6 +102,32 @@ class Graph
     private:
         // fields
         std::vector<Vertex*>* vertices;
+
+        // methods
+        float getClosestDistance(int from, int to, float previousDistance, std::vector<int> checkedVertices)
+        {
+            if(from == to)
+                return previousDistance;
+            
+            checkedVertices.push_back(from);
+            Vertex* temp = vertices->at(from);
+
+            std::vector<float> distances = std::vector<float>();
+            for(Edge* edge : *temp->getEdges())
+            {
+                if(contains(checkedVertices, edge->getDestinationId()))
+                    continue;
+                
+                float actualDist = previousDistance + edge->getWeight();
+                float dist = getClosestDistance(edge->getDestinationId(), to, actualDist, checkedVertices);
+                if(dist >= 0.0f)
+                    distances.push_back(dist);
+            }
+            if(distances.empty())
+                return -1.0f;
+            
+            return min(distances);
+        }
 
     public:
         // constructors
@@ -94,6 +146,12 @@ class Graph
         void                   setVertices(std::vector<Vertex*>* value)  {vertices = value;}
 
         // methods
+        float getClosestDistance(int from, int to)
+        {
+            std::vector<int> vect = std::vector<int>();
+            return getClosestDistance(from, to, 0.0f, vect);
+        }
+
         void display()
         {
             std::cout << "----------------------------------------\n";
@@ -118,18 +176,53 @@ class Graph
 
 int main(int argc, char* argv[])
 {
-    Edge* e = new Edge(1, 20.4f);
+    Vertex* v;
+    std::list<Edge*>* lst;
+    std::vector<Vertex*>* vect = new std::vector<Vertex*>(); 
 
-    std::list<Edge*>* lst = new std::list<Edge*>();
-    lst->push_back(e); 
-
-    Vertex* v = new Vertex(0, "v1");
+    v = new Vertex(0, "Sao Paulo");
+    lst = new std::list<Edge*>();
+    lst->push_back(new Edge(1, 585.0f));
+    lst->push_back(new Edge(2, 446.0f));
+    lst->push_back(new Edge(4, 984.0f));
     v->setEdges(lst);
+    vect->push_back(v);
 
-    std::vector<Vertex*>* vect = new std::vector<Vertex*>();
+    v = new Vertex(1, "Belo Horizonte");
+    lst = new std::list<Edge*>();
+    lst->push_back(new Edge(0, 585.0f));
+    lst->push_back(new Edge(2, 442.0f));
+    lst->push_back(new Edge(3, 515.0f));
+    lst->push_back(new Edge(4, 1262.0f));
+    v->setEdges(lst);
+    vect->push_back(v);
+
+    v = new Vertex(2, "Rio de Janeiro");
+    lst = new std::list<Edge*>();
+    lst->push_back(new Edge(0, 446.0f));
+    lst->push_back(new Edge(1, 442.0f));
+    lst->push_back(new Edge(3, 518.0f));
+    v->setEdges(lst);
+    vect->push_back(v);
+
+    v = new Vertex(3, "Vitoria");
+    lst = new std::list<Edge*>();
+    lst->push_back(new Edge(1, 515.0f));
+    lst->push_back(new Edge(2, 518.0f));
+    v->setEdges(lst);
+    vect->push_back(v);
+
+    v = new Vertex(4, "Campo Grande");
+    lst = new std::list<Edge*>();
+    lst->push_back(new Edge(0, 984.0f));
+    lst->push_back(new Edge(1, 1262.0f));
+    v->setEdges(lst);
     vect->push_back(v);
 
     Graph g = Graph(vect);
     g.display();
+
+    print(g.getClosestDistance(4, 2));
+
     return 0;
 }
